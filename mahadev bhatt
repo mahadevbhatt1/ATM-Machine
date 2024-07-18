@@ -1,0 +1,134 @@
+#include <iostream>
+#include <iomanip>
+#include <cstdlib> // For srand() and rand()
+#include <ctime>   // For time()
+
+using namespace std;
+
+// Structure to hold account information
+struct Account {
+    int accountNumber;
+    int pin;
+    double balance;
+};
+
+// Function prototypes
+void displayMenu();
+bool validatePIN(Account[], int, int);
+void checkBalance(Account[], int);
+void deposit(Account[], int);
+void withdraw(Account[], int);
+
+int main() {
+    // Initialize random seed for account numbers
+    srand(static_cast<unsigned int>(time(0)));
+
+    // Create an array of 3 accounts (for demonstration)
+    Account accounts[3] = {
+        { 1001, 1234, 1500.0 },
+        { 1002, 5678, 2000.0 },
+        { 1003, 4321, 2500.0 }
+    };
+
+    int accountCount = 3;
+    int accountNumber;
+    int pin;
+
+    // ATM interface loop
+    while (true) {
+        cout << "Welcome to the ATM\n";
+        cout << "Enter Account Number: ";
+        cin >> accountNumber;
+
+        cout << "Enter PIN: ";
+        cin >> pin;
+
+        // Validate PIN
+        int index = validatePIN(accounts, accountCount, accountNumber, pin);
+
+        if (index != -1) {
+            int choice;
+            do {
+                displayMenu();
+                cout << "Enter choice: ";
+                cin >> choice;
+
+                switch (choice) {
+                    case 1:
+                        checkBalance(accounts, index);
+                        break;
+                    case 2:
+                        deposit(accounts, index);
+                        break;
+                    case 3:
+                        withdraw(accounts, index);
+                        break;
+                    case 4:
+                        cout << "Thank you for using the ATM. Goodbye!\n";
+                        exit(0);
+                    default:
+                        cout << "Invalid choice. Please try again.\n";
+                        break;
+                }
+            } while (true);
+        } else {
+            cout << "Invalid account number or PIN. Please try again.\n";
+        }
+    }
+
+    return 0;
+}
+
+// Function to display ATM menu
+void displayMenu() {
+    cout << "\nATM Menu:\n";
+    cout << "1. Check Balance\n";
+    cout << "2. Deposit\n";
+    cout << "3. Withdraw\n";
+    cout << "4. Exit\n";
+}
+
+// Function to validate PIN and return account index
+int validatePIN(Account accounts[], int count, int accountNumber, int pin) {
+    for (int i = 0; i < count; ++i) {
+        if (accounts[i].accountNumber == accountNumber && accounts[i].pin == pin) {
+            return i; // Return index of matched account
+        }
+    }
+    return -1; // Return -1 if no account matched
+}
+
+// Function to check account balance
+void checkBalance(Account accounts[], int index) {
+    cout << fixed << setprecision(2);
+    cout << "Account Balance: $" << accounts[index].balance << endl;
+}
+
+// Function to deposit funds into account
+void deposit(Account accounts[], int index) {
+    double amount;
+    cout << "Enter deposit amount: $";
+    cin >> amount;
+
+    if (amount > 0) {
+        accounts[index].balance += amount;
+        cout << "Deposit successful. New balance: $" << accounts[index].balance << endl;
+    } else {
+        cout << "Invalid amount. Please enter a positive value.\n";
+    }
+}
+
+// Function to withdraw funds from account
+void withdraw(Account accounts[], int index) {
+    double amount;
+    cout << "Enter withdrawal amount: $";
+    cin >> amount;
+
+    if (amount > 0 && amount <= accounts[index].balance) {
+        accounts[index].balance -= amount;
+        cout << "Withdrawal successful. New balance: $" << accounts[index].balance << endl;
+    } else {
+        cout << "Insufficient funds or invalid amount. Please try again.\n";
+    }
+}
+
